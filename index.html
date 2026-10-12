@@ -91,29 +91,48 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 8px; text-align: left; font-size: 0.88em; border-bottom: 1px solid rgba(100,180,255,0.08); }
         th { font-weight: 600; color: #6a8fb5; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; }
-        .squad-num { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: rgba(100,180,255,0.25); color: #c8ddf0; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(100,180,255,0.2); }
+        .squad-num { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(100,180,255,0.25); color: #c8ddf0; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(100,180,255,0.2); }
         .squad-num.next { background: rgba(74,144,217,0.4); border-color: #4a90d9; }
         .remove-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; opacity: 0.5; transition: opacity 0.3s, transform 0.2s; padding: 2px 4px; }
         .remove-btn:hover { opacity: 1; transform: scale(1.2); }
         
-        /* НОВЫЙ ДИЗАЙН: Карточки отрядов */
-        .squads-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .squad-card {
-            background: rgba(100, 180, 255, 0.08);
-            border: 1px solid rgba(100, 180, 255, 0.15);
-            border-radius: 8px;
-            padding: 12px;
-            transition: transform 0.2s;
+        /* НОВЫЙ ДИЗАЙН: Состав отрядов как на скриншоте */
+        .squads-list { display: flex; flex-direction: column; gap: 0; }
+        .squad-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(100,180,255,0.1);
+            gap: 15px;
         }
-        .squad-card:hover { transform: translateY(-2px); background: rgba(100, 180, 255, 0.12); }
-        .squad-card-header {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-            padding-bottom: 6px; border-bottom: 1px solid rgba(100,180,255,0.1);
+        .squad-row:last-child { border-bottom: none; }
+        .squad-badge {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(100,180,255,0.25);
+            color: #c8ddf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 1px solid rgba(100,180,255,0.2);
         }
-        .squad-card-title { font-size: 0.9em; font-weight: bold; color: #f0e6d3; }
-        .squad-card-list { font-size: 0.85em; color: #c8ddf0; line-height: 1.6; }
-        .squad-card-list div { padding: 2px 0; }
-        .squad-empty { color: #6a8fb5; font-style: italic; font-size: 0.85em; }
+        .squad-members {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .member-name {
+            color: #c8ddf0;
+            font-size: 0.95em;
+            line-height: 1.4;
+            padding: 2px 0;
+        }
+        .squad-empty { color: #6a8fb5; font-style: italic; font-size: 0.9em; }
 
         /* История */
         .history-card { background: rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 20px; border: 1px solid rgba(100,180,255,0.1); backdrop-filter: blur(10px); max-height: 400px; overflow-y: auto; }
@@ -141,7 +160,6 @@
             .header-text h1 { font-size: 1.8em; }
             .status-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
             .main-grid { grid-template-columns: 1fr; }
-            .squads-grid { grid-template-columns: 1fr; } /* На телефоне карточки в 1 колонку */
             .controls { flex-direction: column; align-items: stretch; }
             .date-inputs { flex-direction: column; align-items: stretch; }
             .date-inputs span { text-align: center; }
@@ -149,6 +167,8 @@
             th, td { padding: 6px 4px; font-size: 0.8em; }
             .squad-num { width: 24px; height: 24px; line-height: 24px; font-size: 0.8em; }
             .bg-img-3 { width: 80%; right: -20%; opacity: 0.05; }
+            .squad-row { padding: 12px 0; }
+            .member-name { font-size: 0.9em; }
         }
     </style>
 </head>
@@ -221,8 +241,8 @@
 
             <div class="card-box">
                 <h2>состав отрядов</h2>
-                <div id="squadGridLoading" class="loading"><div class="spinner"></div>загрузка...</div>
-                <div id="squadsGrid" class="squads-grid" style="display: none;"></div>
+                <div id="squadListLoading" class="loading"><div class="spinner"></div>загрузка...</div>
+                <div id="squadsList" class="squads-list" style="display: none;"></div>
             </div>
         </div>
 
@@ -374,30 +394,32 @@
             });
         }
 
-        // НОВЫЙ РЕНДЕР: Карточки вместо таблицы
-        function renderSquadsGrid() {
-            const grid = document.getElementById('squadsGrid');
-            grid.innerHTML = '';
+        // НОВЫЙ РЕНДЕР: Состав отрядов как на скриншоте
+        function renderSquadsList() {
+            const list = document.getElementById('squadsList');
+            list.innerHTML = '';
+            
             for (let i = 1; i <= TOTAL_SQUADS; i++) {
                 const peopleInSquad = people.filter(p => getCurrentSquad(p) === i);
-                const card = document.createElement('div');
-                card.className = 'squad-card';
                 
-                let namesHtml = '';
+                const row = document.createElement('div');
+                row.className = 'squad-row';
+                
+                let membersHtml = '';
                 if (peopleInSquad.length > 0) {
-                    namesHtml = peopleInSquad.map(p => `<div>• ${p.name}</div>`).join('');
+                    membersHtml = peopleInSquad.map(p => `<div class="member-name">${p.name}</div>`).join('');
                 } else {
-                    namesHtml = '<div class="squad-empty">пусто</div>';
+                    membersHtml = '<div class="squad-empty">пусто</div>';
                 }
-
-                card.innerHTML = `
-                    <div class="squad-card-header">
-                        <span class="squad-num">${i}</span>
-                        <span class="squad-card-title">отряд</span>
+                
+                row.innerHTML = `
+                    <div class="squad-badge">${i}</div>
+                    <div class="squad-members">
+                        ${membersHtml}
                     </div>
-                    <div class="squad-card-list">${namesHtml}</div>
                 `;
-                grid.appendChild(card);
+                
+                list.appendChild(row);
             }
         }
 
@@ -482,12 +504,12 @@
 
         function renderAll() {
             document.getElementById('currentTableLoading').style.display = 'none';
-            document.getElementById('squadGridLoading').style.display = 'none';
+            document.getElementById('squadListLoading').style.display = 'none';
             document.getElementById('currentTable').style.display = 'table';
-            document.getElementById('squadsGrid').style.display = 'grid';
+            document.getElementById('squadsList').style.display = 'flex';
             renderRotationDiagram();
             renderCurrentTable();
-            renderSquadsGrid();
+            renderSquadsList();
             renderHistory();
             updateShiftDisplay();
         }
