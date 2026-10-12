@@ -3,130 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ротация отрядов</title>
+    <title>mpc_rotation</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5B7 30%, #D4A574 70%, #C17F59 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
+            color: #3D2B1F;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
-        h1 { text-align: center; color: white; margin-bottom: 30px; font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            font-weight: 400;
+            letter-spacing: 3px;
+            color: #5C3D2E;
+            text-transform: lowercase;
+        }
+
+        .header .subtitle {
+            font-size: 0.95em;
+            color: #8B6F47;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Статус-бар */
         .status-bar {
-            background: white; border-radius: 15px; padding: 15px 20px; margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(193, 127, 89, 0.2);
         }
-        .sync-status { display: flex; align-items: center; gap: 10px; }
-        .sync-dot { width: 12px; height: 12px; border-radius: 50%; background: #27ae60; animation: pulse 2s infinite; }
-        .sync-dot.offline { background: #e74c3c; animation: none; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .info-panel { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .info-panel h2 { color: #667eea; margin-bottom: 15px; }
-        .rotation-diagram { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .rotation-step { text-align: center; padding: 15px 20px; background: #f0f0f0; border-radius: 10px; min-width: 80px; transition: all 0.3s; }
-        .rotation-step.active { background: #667eea; color: white; transform: scale(1.15); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
-        .rotation-step .number { font-size: 1.8em; font-weight: bold; }
-        .rotation-step .label { font-size: 0.85em; opacity: 0.7; }
-        .arrow { font-size: 1.5em; color: #667eea; }
-        .controls { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 20px; }
-        .controls h2 { color: #667eea; margin-bottom: 15px; }
-        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        button { padding: 12px 24px; border: none; border-radius: 8px; background: #667eea; color: white; font-size: 1em; cursor: pointer; transition: all 0.3s; font-weight: 600; }
-        button:hover { background: #764ba2; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        button.danger { background: #e74c3c; }
-        button.danger:hover { background: #c0392b; }
-        button.success { background: #27ae60; }
-        button.success:hover { background: #219a52; }
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .table-container { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .table-container h2 { color: #667eea; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #ddd; font-size: 0.95em; }
-        th { background: #667eea; color: white; font-weight: 600; }
-        tr:hover { background: #f5f5f5; }
-        .squad-badge { display: inline-block; width: 35px; height: 35px; line-height: 35px; border-radius: 50%; background: #667eea; color: white; font-weight: bold; }
-        .squad-badge.next { background: #764ba2; }
-        .person-name { font-weight: 500; }
-        .remove-btn { background: #e74c3c; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 0.8em; margin-left: 5px; }
-        .history-container { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 500px; overflow-y: auto; }
-        .history-container h2 { color: #667eea; margin-bottom: 15px; }
-        .history-entry { padding: 12px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
-        .history-entry .date { font-weight: bold; color: #667eea; font-size: 0.9em; }
-        .history-entry .assignments { margin-top: 8px; font-size: 0.9em; line-height: 1.6; }
-        .add-form { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        input[type="text"] { flex: 1; min-width: 200px; padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; }
-        input[type="text"]:focus { outline: none; border-color: #667eea; }
-        .loading { text-align: center; padding: 40px; color: #667eea; font-size: 1.2em; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } h1 { font-size: 1.8em; } }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #8B6F47;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6B8E23;
+            animation: pulse 2s infinite;
+        }
+
+        .sync-dot.offline {
+            background: #CD5C5C;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .rotation-info {
+            font-size: 0.9em;
+            color: #8B6F47;
+        }
+
+        .rotation-info strong {
+            color: #5C3D2E;
+        }
+
+        /* Мини-схема ротации */
+        .rotation-scheme {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(193, 127, 89, 0.15);
+        }
+
+        .rotation-scheme .label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #A08060;
+            margin-bottom: 12px;
+        }
+
+        .rotation-chain {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chain-number {
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            border-radius: 50%;
+            background: #D4A574;
+            color: #fff;
+            font-size: 0.95em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .chain-number.active {
+            background: #A0522D;
+            transform: scale(1.2);
+            box-shadow: 0 2px 8px rgba(160, 82, 45, 0.4);
+        }
+
+        .chain-arrow {
+            color: #C17F59;
+            font-size: 0.9em;
+        }
+
+        /* Панель управления (компактная) */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(193, 127, 89, 0.15);
+        }
+
+        .controls input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 14px;
+            border: 1px solid #D4A574;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            font-family: inherit;
+            font-size: 0.9em;
+            color: #3D2B1F;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .controls input[type="text"]:focus {
+            border-color: #A0522D;
+        }
+
+        .controls input[type="text"]::placeholder {
+            color: #B8956A;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #A0522D;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #8B4513;
+        }
+
+        .btn-secondary {
+            background: rgba(193, 127, 89, 0.3);
+            color: #5C3D2E;
+            border: 1px solid #D4A574;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(193, 127, 89, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(205, 92, 92, 0.2);
+            color: #8B3A3A;
+            border: 1px solid rgba(205, 92, 92, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(205, 92, 92, 0.4);
+        }
+
+        /* Таблицы */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .table-card {
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(193, 127, 89, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .table-card h2 {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #5C3D2E;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(193, 127, 89, 0.2);
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            font-size: 0.9em;
+            border-bottom: 1px solid rgba(193, 127, 89, 0.1);
+        }
+
+        th {
+            font-weight: 600;
+            color: #8B6F47;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .squad-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            background: #D4A574;
+            color: #fff;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .squad-num.next {
+            background: #A0522D;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+            padding: 2px 6px;
+        }
+
+        .remove-btn:hover {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #B8956A;
+            font-style: italic;
+        }
+
+        /* История */
+        .history-card {
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(193, 127, 89, 0.15);
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-card h2 {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #5C3D2E;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(193, 127, 89, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(193, 127, 89, 0.1);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-size: 0.8em;
+            color: #A08060;
+            margin-bottom: 6px;
+        }
+
+        .history-assignments {
+            font-size: 0.85em;
+            color: #5C3D2E;
+            line-height: 1.8;
+        }
+
+        /* Загрузка */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #B8956A;
+            font-style: italic;
+        }
+
+        .spinner {
+            border: 3px solid rgba(193, 127, 89, 0.2);
+            border-top: 3px solid #A0522D;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(193, 127, 89, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D4A574;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .controls input[type="text"] {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔄 Система ротации отрядов</h1>
+        <div class="header">
+            <h1>mpc_rotation</h1>
+            <div class="subtitle">осенняя ротация отрядов</div>
+        </div>
 
         <div class="status-bar">
             <div class="sync-status">
                 <div class="sync-dot offline" id="syncDot"></div>
-                <span id="syncText">Подключение...</span>
+                <span id="syncText">подключение...</span>
             </div>
-            <div><strong>Текущая ротация:</strong> <span id="rotationNumber">1</span></div>
+            <div class="rotation-info">
+                ротация <strong id="rotationNumber">1</strong>
+            </div>
         </div>
 
-        <div class="info-panel">
-            <h2>📍 Схема ротации (зигзаг)</h2>
-            <div class="rotation-diagram" id="rotationDiagram"></div>
+        <div class="rotation-scheme">
+            <div class="label">порядок ротации</div>
+            <div class="rotation-chain" id="rotationDiagram"></div>
         </div>
 
         <div class="controls">
-            <h2>⚙️ Управление</h2>
-            <div class="add-form">
-                <input type="text" id="personName" placeholder="Имя сотрудника">
-                <button onclick="window.addPersonGlobal()">➕ Добавить</button>
-            </div>
-            <div class="button-group">
-                <button class="success" onclick="window.nextRotationGlobal()">➡️ Следующая ротация</button>
-                <button onclick="window.previousRotationGlobal()">⬅️ Назад</button>
-                <button onclick="window.resetRotationGlobal()">🔄 Сброс</button>
-                <button class="danger" onclick="window.clearHistoryGlobal()">🗑️ Очистить историю</button>
-            </div>
+            <input type="text" id="personName" placeholder="имя сотрудника">
+            <button class="btn btn-primary" onclick="window.addPersonGlobal()">добавить</button>
+            <button class="btn btn-secondary" onclick="window.nextRotationGlobal()">следующая</button>
+            <button class="btn btn-secondary" onclick="window.previousRotationGlobal()">назад</button>
+            <button class="btn btn-secondary" onclick="window.resetRotationGlobal()">сброс</button>
+            <button class="btn btn-danger" onclick="window.clearHistoryGlobal()">очистить историю</button>
         </div>
 
-        <div class="main-grid">
-            <div class="table-container">
-                <h2>👥 Текущее распределение</h2>
-                <div id="currentTableLoading" class="loading"><div class="spinner"></div>Загрузка данных...</div>
+        <div class="tables-grid">
+            <div class="table-card">
+                <h2>распределение</h2>
+                <div id="currentTableLoading" class="loading">
+                    <div class="spinner"></div>
+                    загрузка...
+                </div>
                 <table id="currentTable" style="display: none;">
-                    <thead><tr><th>Сотрудник</th><th>Отряд</th><th>Следующий</th><th></th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>сотрудник</th>
+                            <th>отряд</th>
+                            <th>след.</th>
+                            <th></th>
+                        </tr>
+                    </thead>
                     <tbody id="currentTableBody"></tbody>
                 </table>
             </div>
 
-            <div class="table-container">
-                <h2>📊 Состав отрядов</h2>
-                <div id="squadTableLoading" class="loading"><div class="spinner"></div>Загрузка данных...</div>
+            <div class="table-card">
+                <h2>состав отрядов</h2>
+                <div id="squadTableLoading" class="loading">
+                    <div class="spinner"></div>
+                    загрузка...
+                </div>
                 <table id="squadTable" style="display: none;">
-                    <thead><tr><th>Отряд</th><th>Сотрудники</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>отряд</th>
+                            <th>сотрудники</th>
+                        </tr>
+                    </thead>
                     <tbody id="squadTableBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="history-container">
-            <h2>📜 История ротаций</h2>
-            <div id="historyList"><div class="loading"><div class="spinner"></div>Загрузка истории...</div></div>
+        <div class="history-card">
+            <h2>история</h2>
+            <div id="historyList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    загрузка...
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Подключаем Firebase как модули -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, onValue, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // ТВОИ ДАННЫЕ ИЗ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDdJQ5Q14uc0nZlIbXRCxbLHb0t7toDmJk",
             authDomain: "patriotic-center-tablet.firebaseapp.com",
@@ -137,7 +490,6 @@
             appId: "1:785036138962:web:69f2af44ea65e87a4e500b"
         };
 
-        // Инициализация
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -145,20 +497,34 @@
         const ROTATION_ORDER = [1, 5, 2, 6, 3, 7, 4, 8];
 
         const INITIAL_PEOPLE = [
-            { name: "Радковец Анна", initialSquad: 1 }, { name: "Крупская Лия", initialSquad: 1 }, { name: "Куприянчик Илья", initialSquad: 1 },
-            { name: "Дронов Матвей", initialSquad: 2 }, { name: "Сирисько Анастасия", initialSquad: 2 }, { name: "Левчук Анастасия", initialSquad: 2 },
-            { name: "Полховская Екатерина", initialSquad: 3 }, { name: "Панков Илья", initialSquad: 3 }, { name: "Сохоневич Юлия", initialSquad: 3 },
-            { name: "Хоружая Екатерина", initialSquad: 4 }, { name: "Бегеза Екатерина", initialSquad: 4 }, { name: "Давидович Дмитрий", initialSquad: 4 },
-            { name: "Богуш Анастасия", initialSquad: 5 }, { name: "Косцов Никита", initialSquad: 5 }, { name: "Рудько Виктор", initialSquad: 5 },
-            { name: "Дубина Мария", initialSquad: 6 }, { name: "Каминский Глеб", initialSquad: 6 },
-            { name: "Стеценко Елизавета", initialSquad: 7 }, { name: "Мазурук Владислава", initialSquad: 7 }, { name: "Кухарчик Иветта", initialSquad: 7 },
-            { name: "Ничик Анна", initialSquad: 8 }, { name: "Тарасевич Екатерина", initialSquad: 8 }, { name: "Цикоридзе Анастасия", initialSquad: 8 }
+            { name: "Радковец Анна", initialSquad: 1 },
+            { name: "Крупская Лия", initialSquad: 1 },
+            { name: "Куприянчик Илья", initialSquad: 1 },
+            { name: "Дронов Матвей", initialSquad: 2 },
+            { name: "Сирисько Анастасия", initialSquad: 2 },
+            { name: "Левчук Анастасия", initialSquad: 2 },
+            { name: "Полховская Екатерина", initialSquad: 3 },
+            { name: "Панков Илья", initialSquad: 3 },
+            { name: "Сохоневич Юлия", initialSquad: 3 },
+            { name: "Хоружая Екатерина", initialSquad: 4 },
+            { name: "Бегеза Екатерина", initialSquad: 4 },
+            { name: "Давидович Дмитрий", initialSquad: 4 },
+            { name: "Богуш Анастасия", initialSquad: 5 },
+            { name: "Косцов Никита", initialSquad: 5 },
+            { name: "Рудько Виктор", initialSquad: 5 },
+            { name: "Дубина Мария", initialSquad: 6 },
+            { name: "Каминский Глеб", initialSquad: 6 },
+            { name: "Стеценко Елизавета", initialSquad: 7 },
+            { name: "Мазурук Владислава", initialSquad: 7 },
+            { name: "Кухарчик Иветта", initialSquad: 7 },
+            { name: "Ничик Анна", initialSquad: 8 },
+            { name: "Тарасевич Екатерина", initialSquad: 8 },
+            { name: "Цикоридзе Анастасия", initialSquad: 8 }
         ];
 
         let people = [];
         let currentRotation = 0;
         let history = [];
-        let isConnected = false;
 
         function getCurrentSquad(person) {
             const initialIndex = ROTATION_ORDER.indexOf(person.initialSquad);
@@ -175,13 +541,13 @@
             const container = document.getElementById('rotationDiagram');
             container.innerHTML = '';
             ROTATION_ORDER.forEach((squad, index) => {
-                const step = document.createElement('div');
-                step.className = 'rotation-step' + (index === currentRotation % ROTATION_ORDER.length ? ' active' : '');
-                step.innerHTML = `<div class="number">${squad}</div><div class="label">Позиция ${index + 1}</div>`;
-                container.appendChild(step);
+                const num = document.createElement('div');
+                num.className = 'chain-number' + (index === currentRotation % ROTATION_ORDER.length ? ' active' : '');
+                num.textContent = squad;
+                container.appendChild(num);
                 if (index < ROTATION_ORDER.length - 1) {
-                    const arrow = document.createElement('div');
-                    arrow.className = 'arrow';
+                    const arrow = document.createElement('span');
+                    arrow.className = 'chain-arrow';
                     arrow.textContent = '→';
                     container.appendChild(arrow);
                 }
@@ -192,7 +558,7 @@
             const tbody = document.getElementById('currentTableBody');
             tbody.innerHTML = '';
             if (people.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Нет сотрудников</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">нет сотрудников</td></tr>';
                 return;
             }
             people.forEach((person) => {
@@ -200,14 +566,13 @@
                 const nextSquad = getNextSquad(currentSquad);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="person-name">${person.name}</td>
-                    <td><span class="squad-badge">${currentSquad}</span></td>
-                    <td><span class="squad-badge next">${nextSquad}</span></td>
-                    <td><button class="remove-btn" data-id="${person.id}">✕</button></td>
+                    <td>${person.name}</td>
+                    <td><span class="squad-num">${currentSquad}</span></td>
+                    <td><span class="squad-num next">${nextSquad}</span></td>
+                    <td><button class="remove-btn" data-id="${person.id}" title="удалить">☺</button></td>
                 `;
                 tbody.appendChild(tr);
             });
-            // Навешиваем обработчики на кнопки удаления
             tbody.querySelectorAll('.remove-btn').forEach(btn => {
                 btn.addEventListener('click', () => removePerson(btn.getAttribute('data-id')));
             });
@@ -220,10 +585,8 @@
                 const peopleInSquad = people.filter(p => getCurrentSquad(p) === i);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="squad-badge">${i}</span></td>
-                    <td style="text-align: left; padding-left: 15px;">
-                        ${peopleInSquad.length > 0 ? peopleInSquad.map(p => p.name).join('<br>') : '<span style="color: #999;">Пусто</span>'}
-                    </td>
+                    <td><span class="squad-num">${i}</span></td>
+                    <td>${peopleInSquad.length > 0 ? peopleInSquad.map(p => p.name).join('<br>') : '<span style="color: #B8956A; font-style: italic;">пусто</span>'}</td>
                 `;
                 tbody.appendChild(tr);
             }
@@ -233,30 +596,29 @@
             const container = document.getElementById('historyList');
             container.innerHTML = '';
             if (history.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">История пуста</p>';
+                container.innerHTML = '<div class="empty-state">история пуста</div>';
                 return;
             }
             history.slice().reverse().forEach(entry => {
                 const div = document.createElement('div');
-                div.className = 'history-entry';
+                div.className = 'history-item';
                 div.innerHTML = `
-                    <div class="date">📅 ${entry.date} — Ротация #${entry.rotation}</div>
-                    <div class="assignments">${entry.assignments.map(a => `<strong>${a.name}</strong> → Отряд ${a.squad}`).join('<br>')}</div>
+                    <div class="history-date">${entry.date} — ротация #${entry.rotation}</div>
+                    <div class="history-assignments">${entry.assignments.map(a => `${a.name} → отряд ${a.squad}`).join('<br>')}</div>
                 `;
                 container.appendChild(div);
             });
         }
 
         function updateConnectionStatus(connected) {
-            isConnected = connected;
             const dot = document.getElementById('syncDot');
             const text = document.getElementById('syncText');
             if (connected) {
                 dot.classList.remove('offline');
-                text.textContent = 'Синхронизировано';
+                text.textContent = 'синхронизировано';
             } else {
                 dot.classList.add('offline');
-                text.textContent = 'Нет подключения';
+                text.textContent = 'нет подключения';
             }
         }
 
@@ -276,23 +638,20 @@
                 updateConnectionStatus(true);
                 renderAll();
             }, (error) => {
-                console.error('Ошибка загрузки:', error);
+                console.error('ошибка:', error);
                 updateConnectionStatus(false);
             });
         }
 
         function saveData() {
             set(ref(db, 'rotation'), {
-                people,
-                currentRotation,
-                history,
+                people, currentRotation, history,
                 lastUpdated: serverTimestamp()
-            }).then(() => {
-                updateConnectionStatus(true);
-            }).catch((error) => {
-                console.error('Ошибка сохранения:', error);
-                updateConnectionStatus(false);
-            });
+            }).then(() => updateConnectionStatus(true))
+              .catch((error) => {
+                  console.error('ошибка сохранения:', error);
+                  updateConnectionStatus(false);
+              });
         }
 
         function renderAll() {
@@ -307,7 +666,6 @@
             renderHistory();
         }
 
-        // Функции, привязанные к window, чтобы работали из HTML onclick
         window.addPersonGlobal = function() {
             const nameInput = document.getElementById('personName');
             const name = nameInput.value.trim();
@@ -319,7 +677,7 @@
         };
 
         window.removePerson = function(id) {
-            if (confirm('Удалить этого сотрудника?')) {
+            if (confirm('удалить сотрудника?')) {
                 people = people.filter(p => p.id !== id);
                 saveData();
             }
@@ -341,7 +699,7 @@
         };
 
         window.resetRotationGlobal = function() {
-            if (confirm('Сбросить ротацию к начальному состоянию?')) {
+            if (confirm('сбросить ротацию?')) {
                 currentRotation = 0;
                 history = [];
                 saveData();
@@ -349,18 +707,16 @@
         };
 
         window.clearHistoryGlobal = function() {
-            if (confirm('Очистить всю историю ротаций?')) {
+            if (confirm('очистить историю?')) {
                 history = [];
                 saveData();
             }
         };
 
-        // Отслеживание подключения
         onValue(ref(db, '.info/connected'), (snapshot) => {
             updateConnectionStatus(snapshot.val() === true);
         });
 
-        // Запуск
         loadData();
     </script>
 </body>
