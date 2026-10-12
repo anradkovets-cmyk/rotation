@@ -108,7 +108,7 @@
                 <span id="syncText">подключение...</span>
             </div>
             <div class="shift-info">
-                смена: <strong id="currentShiftDisplay">—</strong>
+                смена: <strong id="currentShiftDisplay">10.10.2026 — 24.10.2026</strong>
             </div>
         </div>
 
@@ -363,7 +363,7 @@
             if (currentShift.startDate && currentShift.endDate) {
                 display.textContent = `${formatDate(currentShift.startDate)} — ${formatDate(currentShift.endDate)}`;
             } else {
-                display.textContent = 'даты не установлены';
+                display.textContent = '10.10.2026 — 24.10.2026';
             }
         }
 
