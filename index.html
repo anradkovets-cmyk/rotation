@@ -85,7 +85,7 @@
         
         /* Сетка для таблиц и карточек */
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .card-box { background: rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 20px; border: 1px solid rgba(100,180,255,0.1); backdrop-filter: blur(10px); }
+        .card-box { background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 20px; border: 1px solid rgba(100,180,255,0.05); backdrop-filter: blur(5px); }
         .card-box h2 { font-size: 1.05em; font-weight: 400; color: #f0e6d3; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(100,180,255,0.15); letter-spacing: 1px; }
         
         /* Таблица распределения */
@@ -266,7 +266,12 @@
             .btn { width: 100%; text-align: center; padding: 10px; }
             th, td { padding: 6px 4px; font-size: 0.8em; }
             .squad-num { width: 24px; height: 24px; line-height: 24px; font-size: 0.8em; }
-            .bg-img-3 { width: 80%; right: -20%; opacity: 0.05; }
+           .bg-img-3 { 
+    width: 70%; 
+    left: 15%; 
+    right: auto;
+    opacity: 0.06; 
+}
             .squad-row { margin-bottom: 18px; }
             .member-item { font-size: 0.9em; }
         }
