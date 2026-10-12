@@ -13,35 +13,94 @@
 
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5B7 30%, #D4A574 70%, #C17F59 100%);
+            background: linear-gradient(180deg, #0a1628 0%, #1a2d50 30%, #2a4a7f 60%, #1a2d50 100%);
             min-height: 100vh;
             padding: 40px 20px;
-            color: #3D2B1F;
+            color: #e8dcc8;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Пузырьки */
+        .bubbles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(100,180,255,0.05));
+            border: 1px solid rgba(255,255,255,0.08);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-50vh) translateX(30px) scale(1.1);
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(-20px) scale(0.8);
+                opacity: 0;
+            }
         }
 
         .container {
             max-width: 1100px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         /* Заголовок */
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
 
-        .header h1 {
-            font-size: 2.8em;
+        .header-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .header-text h1 {
+            font-size: 2.5em;
             font-weight: 400;
             letter-spacing: 3px;
-            color: #5C3D2E;
+            color: #f0e6d3;
             text-transform: lowercase;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        .header .subtitle {
-            font-size: 0.95em;
-            color: #8B6F47;
-            margin-top: 8px;
+        .header-text .subtitle {
+            font-size: 0.9em;
+            color: #8ab4d6;
+            margin-top: 5px;
             font-style: italic;
         }
 
@@ -51,11 +110,11 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(193, 127, 89, 0.2);
+            border: 1px solid rgba(100,180,255,0.15);
         }
 
         .sync-status {
@@ -63,7 +122,7 @@
             align-items: center;
             gap: 8px;
             font-size: 0.9em;
-            color: #8B6F47;
+            color: #8ab4d6;
         }
 
         .sync-dot {
@@ -84,31 +143,31 @@
             50% { opacity: 0.4; }
         }
 
-        .rotation-info {
+        .shift-info {
             font-size: 0.9em;
-            color: #8B6F47;
+            color: #8ab4d6;
         }
 
-        .rotation-info strong {
-            color: #5C3D2E;
+        .shift-info strong {
+            color: #f0e6d3;
         }
 
         /* Мини-схема ротации */
         .rotation-scheme {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 8px;
-            border: 1px solid rgba(193, 127, 89, 0.15);
+            border: 1px solid rgba(100,180,255,0.1);
         }
 
         .rotation-scheme .label {
-            font-size: 0.8em;
+            font-size: 0.75em;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #A08060;
-            margin-bottom: 12px;
+            color: #6a8fb5;
+            margin-bottom: 10px;
         }
 
         .rotation-chain {
@@ -120,61 +179,84 @@
         }
 
         .chain-number {
-            width: 36px;
-            height: 36px;
-            line-height: 36px;
+            width: 34px;
+            height: 34px;
+            line-height: 34px;
             border-radius: 50%;
-            background: #D4A574;
-            color: #fff;
-            font-size: 0.95em;
+            background: rgba(100,180,255,0.2);
+            color: #c8ddf0;
+            font-size: 0.9em;
             font-weight: bold;
             transition: all 0.3s;
+            border: 1px solid rgba(100,180,255,0.2);
         }
 
         .chain-number.active {
-            background: #A0522D;
+            background: #4a90d9;
+            color: #fff;
             transform: scale(1.2);
-            box-shadow: 0 2px 8px rgba(160, 82, 45, 0.4);
+            box-shadow: 0 2px 12px rgba(74,144,217,0.5);
+            border-color: #4a90d9;
         }
 
         .chain-arrow {
-            color: #C17F59;
-            font-size: 0.9em;
+            color: #6a8fb5;
+            font-size: 0.85em;
         }
 
-        /* Панель управления (компактная) */
+        /* Панель управления */
         .controls {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 8px;
-            border: 1px solid rgba(193, 127, 89, 0.15);
+            border: 1px solid rgba(100,180,255,0.1);
         }
 
-        .controls input[type="text"] {
-            flex: 1;
-            min-width: 200px;
+        .controls input[type="text"],
+        .controls input[type="date"] {
             padding: 8px 14px;
-            border: 1px solid #D4A574;
+            border: 1px solid rgba(100,180,255,0.3);
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.08);
             font-family: inherit;
             font-size: 0.9em;
-            color: #3D2B1F;
+            color: #e8dcc8;
             outline: none;
             transition: border-color 0.3s;
         }
 
-        .controls input[type="text"]:focus {
-            border-color: #A0522D;
+        .controls input[type="text"]:focus,
+        .controls input[type="date"]:focus {
+            border-color: #4a90d9;
         }
 
         .controls input[type="text"]::placeholder {
-            color: #B8956A;
+            color: #6a8fb5;
+        }
+
+        .controls input[type="date"] {
+            color: #c8ddf0;
+        }
+
+        .controls input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-inputs span {
+            color: #6a8fb5;
+            font-size: 0.85em;
         }
 
         .btn {
@@ -189,32 +271,32 @@
         }
 
         .btn-primary {
-            background: #A0522D;
+            background: #4a90d9;
             color: #fff;
         }
 
         .btn-primary:hover {
-            background: #8B4513;
+            background: #3a7bc8;
         }
 
         .btn-secondary {
-            background: rgba(193, 127, 89, 0.3);
-            color: #5C3D2E;
-            border: 1px solid #D4A574;
+            background: rgba(100,180,255,0.15);
+            color: #c8ddf0;
+            border: 1px solid rgba(100,180,255,0.25);
         }
 
         .btn-secondary:hover {
-            background: rgba(193, 127, 89, 0.5);
+            background: rgba(100,180,255,0.25);
         }
 
         .btn-danger {
             background: rgba(205, 92, 92, 0.2);
-            color: #8B3A3A;
+            color: #e8a0a0;
             border: 1px solid rgba(205, 92, 92, 0.3);
         }
 
         .btn-danger:hover {
-            background: rgba(205, 92, 92, 0.4);
+            background: rgba(205, 92, 92, 0.35);
         }
 
         /* Таблицы */
@@ -222,24 +304,24 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .table-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.07);
             border-radius: 8px;
             padding: 20px;
-            border: 1px solid rgba(193, 127, 89, 0.15);
+            border: 1px solid rgba(100,180,255,0.1);
             backdrop-filter: blur(10px);
         }
 
         .table-card h2 {
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: 400;
-            color: #5C3D2E;
+            color: #f0e6d3;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid rgba(193, 127, 89, 0.2);
+            border-bottom: 1px solid rgba(100,180,255,0.15);
             letter-spacing: 1px;
         }
 
@@ -249,111 +331,120 @@
         }
 
         th, td {
-            padding: 10px 8px;
+            padding: 9px 8px;
             text-align: left;
-            font-size: 0.9em;
-            border-bottom: 1px solid rgba(193, 127, 89, 0.1);
+            font-size: 0.88em;
+            border-bottom: 1px solid rgba(100,180,255,0.08);
         }
 
         th {
             font-weight: 600;
-            color: #8B6F47;
-            font-size: 0.8em;
+            color: #6a8fb5;
+            font-size: 0.78em;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .squad-num {
             display: inline-block;
-            width: 28px;
-            height: 28px;
-            line-height: 28px;
+            width: 26px;
+            height: 26px;
+            line-height: 26px;
             text-align: center;
             border-radius: 50%;
-            background: #D4A574;
-            color: #fff;
-            font-size: 0.85em;
+            background: rgba(100,180,255,0.25);
+            color: #c8ddf0;
+            font-size: 0.82em;
             font-weight: bold;
+            border: 1px solid rgba(100,180,255,0.2);
         }
 
         .squad-num.next {
-            background: #A0522D;
+            background: rgba(74,144,217,0.4);
+            border-color: #4a90d9;
         }
 
         .remove-btn {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.1em;
-            opacity: 0.4;
-            transition: opacity 0.3s;
-            padding: 2px 6px;
+            font-size: 1.3em;
+            opacity: 0.5;
+            transition: opacity 0.3s, transform 0.2s;
+            padding: 2px 4px;
         }
 
         .remove-btn:hover {
             opacity: 1;
+            transform: scale(1.2);
         }
 
         .empty-state {
             text-align: center;
             padding: 30px;
-            color: #B8956A;
+            color: #6a8fb5;
             font-style: italic;
         }
 
         /* История */
         .history-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.07);
             border-radius: 8px;
             padding: 20px;
-            border: 1px solid rgba(193, 127, 89, 0.15);
+            border: 1px solid rgba(100,180,255,0.1);
             backdrop-filter: blur(10px);
             max-height: 400px;
             overflow-y: auto;
         }
 
         .history-card h2 {
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: 400;
-            color: #5C3D2E;
+            color: #f0e6d3;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid rgba(193, 127, 89, 0.2);
+            border-bottom: 1px solid rgba(100,180,255,0.15);
             letter-spacing: 1px;
         }
 
         .history-item {
             padding: 12px 0;
-            border-bottom: 1px solid rgba(193, 127, 89, 0.1);
+            border-bottom: 1px solid rgba(100,180,255,0.08);
         }
 
         .history-item:last-child {
             border-bottom: none;
         }
 
+        .history-shift {
+            font-size: 0.85em;
+            color: #4a90d9;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
         .history-date {
-            font-size: 0.8em;
-            color: #A08060;
+            font-size: 0.78em;
+            color: #6a8fb5;
             margin-bottom: 6px;
         }
 
         .history-assignments {
-            font-size: 0.85em;
-            color: #5C3D2E;
-            line-height: 1.8;
+            font-size: 0.83em;
+            color: #c8ddf0;
+            line-height: 1.7;
         }
 
-        /* Загрузка */
         .loading {
             text-align: center;
             padding: 40px;
-            color: #B8956A;
+            color: #6a8fb5;
             font-style: italic;
         }
 
         .spinner {
-            border: 3px solid rgba(193, 127, 89, 0.2);
-            border-top: 3px solid #A0522D;
+            border: 3px solid rgba(100,180,255,0.15);
+            border-top: 3px solid #4a90d9;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -366,41 +457,33 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Скроллбар */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(193, 127, 89, 0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #D4A574;
-            border-radius: 3px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(100,180,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(100,180,255,0.3); border-radius: 3px; }
 
         @media (max-width: 768px) {
-            .tables-grid {
-                grid-template-columns: 1fr;
-            }
-            .header h1 {
-                font-size: 2em;
-            }
-            .controls {
-                flex-direction: column;
-            }
-            .controls input[type="text"] {
-                width: 100%;
-            }
+            .tables-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 10px; }
+            .header-text h1 { font-size: 1.8em; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .date-inputs { justify-content: center; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Пузырьки -->
+    <div class="bubbles-container" id="bubblesContainer"></div>
+
     <div class="container">
         <div class="header">
-            <h1>mpc_rotation</h1>
-            <div class="subtitle">осенняя ротация отрядов</div>
+            <!-- ЗАМЕНИ src НА ССЫЛКИ СВОИХ КАРТИНОК -->
+            <img class="header-img" src="https://i.imgur.com/placeholder1.png" alt="img1" id="headerImg1">
+            <div class="header-text">
+                <h1>mpc_rotation</h1>
+                <div class="subtitle">ротация отрядов по сменам</div>
+            </div>
+            <img class="header-img" src="https://i.imgur.com/placeholder2.png" alt="img2" id="headerImg2">
         </div>
 
         <div class="status-bar">
@@ -408,8 +491,8 @@
                 <div class="sync-dot offline" id="syncDot"></div>
                 <span id="syncText">подключение...</span>
             </div>
-            <div class="rotation-info">
-                ротация <strong id="rotationNumber">1</strong>
+            <div class="shift-info">
+                смена: <strong id="currentShiftDisplay">—</strong>
             </div>
         </div>
 
@@ -421,7 +504,15 @@
         <div class="controls">
             <input type="text" id="personName" placeholder="имя сотрудника">
             <button class="btn btn-primary" onclick="window.addPersonGlobal()">добавить</button>
-            <button class="btn btn-secondary" onclick="window.nextRotationGlobal()">следующая</button>
+
+            <div class="date-inputs">
+                <span>следующая смена:</span>
+                <input type="date" id="nextShiftStart">
+                <span>—</span>
+                <input type="date" id="nextShiftEnd">
+                <button class="btn btn-secondary" onclick="window.nextShiftGlobal()">начать смену</button>
+            </div>
+
             <button class="btn btn-secondary" onclick="window.previousRotationGlobal()">назад</button>
             <button class="btn btn-secondary" onclick="window.resetRotationGlobal()">сброс</button>
             <button class="btn btn-danger" onclick="window.clearHistoryGlobal()">очистить историю</button>
@@ -466,7 +557,7 @@
         </div>
 
         <div class="history-card">
-            <h2>история</h2>
+            <h2>история смен</h2>
             <div id="historyList">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -524,7 +615,8 @@
 
         let people = [];
         let currentRotation = 0;
-        let history = [];
+        let currentShift = { startDate: "", endDate: "" };
+        let shifts = [];
 
         function getCurrentSquad(person) {
             const initialIndex = ROTATION_ORDER.indexOf(person.initialSquad);
@@ -535,6 +627,32 @@
         function getNextSquad(squad) {
             const index = ROTATION_ORDER.indexOf(squad);
             return ROTATION_ORDER[(index + 1) % ROTATION_ORDER.length];
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "—";
+            const parts = dateStr.split("-");
+            if (parts.length === 3) {
+                return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        // Генерация пузырьков
+        function createBubbles() {
+            const container = document.getElementById('bubblesContainer');
+            const count = 20;
+            for (let i = 0; i < count; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 60 + 20;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                bubble.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(bubble);
+            }
         }
 
         function renderRotationDiagram() {
@@ -569,7 +687,7 @@
                     <td>${person.name}</td>
                     <td><span class="squad-num">${currentSquad}</span></td>
                     <td><span class="squad-num next">${nextSquad}</span></td>
-                    <td><button class="remove-btn" data-id="${person.id}" title="удалить">☺</button></td>
+                    <td><button class="remove-btn" data-id="${person.id}" title="удалить">😱</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -586,7 +704,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><span class="squad-num">${i}</span></td>
-                    <td>${peopleInSquad.length > 0 ? peopleInSquad.map(p => p.name).join('<br>') : '<span style="color: #B8956A; font-style: italic;">пусто</span>'}</td>
+                    <td>${peopleInSquad.length > 0 ? peopleInSquad.map(p => p.name).join('<br>') : '<span style="color: #6a8fb5; font-style: italic;">пусто</span>'}</td>
                 `;
                 tbody.appendChild(tr);
             }
@@ -595,15 +713,16 @@
         function renderHistory() {
             const container = document.getElementById('historyList');
             container.innerHTML = '';
-            if (history.length === 0) {
+            if (shifts.length === 0) {
                 container.innerHTML = '<div class="empty-state">история пуста</div>';
                 return;
             }
-            history.slice().reverse().forEach(entry => {
+            shifts.slice().reverse().forEach((entry, idx) => {
                 const div = document.createElement('div');
                 div.className = 'history-item';
                 div.innerHTML = `
-                    <div class="history-date">${entry.date} — ротация #${entry.rotation}</div>
+                    <div class="history-shift">смена ${shifts.length - idx}: ${formatDate(entry.startDate)} — ${formatDate(entry.endDate)}</div>
+                    <div class="history-date">ротация #${entry.rotation + 1}</div>
                     <div class="history-assignments">${entry.assignments.map(a => `${a.name} → отряд ${a.squad}`).join('<br>')}</div>
                 `;
                 container.appendChild(div);
@@ -622,17 +741,28 @@
             }
         }
 
+        function updateShiftDisplay() {
+            const display = document.getElementById('currentShiftDisplay');
+            if (currentShift.startDate && currentShift.endDate) {
+                display.textContent = `${formatDate(currentShift.startDate)} — ${formatDate(currentShift.endDate)}`;
+            } else {
+                display.textContent = 'даты не установлены';
+            }
+        }
+
         function loadData() {
             onValue(ref(db, 'rotation'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     people = data.people || [];
                     currentRotation = data.currentRotation || 0;
-                    history = data.history || [];
+                    currentShift = data.currentShift || { startDate: "", endDate: "" };
+                    shifts = data.shifts || [];
                 } else {
                     people = INITIAL_PEOPLE.map((p, i) => ({ ...p, id: 'initial_' + i }));
                     currentRotation = 0;
-                    history = [];
+                    currentShift = { startDate: "", endDate: "" };
+                    shifts = [];
                     saveData();
                 }
                 updateConnectionStatus(true);
@@ -645,7 +775,7 @@
 
         function saveData() {
             set(ref(db, 'rotation'), {
-                people, currentRotation, history,
+                people, currentRotation, currentShift, shifts,
                 lastUpdated: serverTimestamp()
             }).then(() => updateConnectionStatus(true))
               .catch((error) => {
@@ -659,11 +789,11 @@
             document.getElementById('squadTableLoading').style.display = 'none';
             document.getElementById('currentTable').style.display = 'table';
             document.getElementById('squadTable').style.display = 'table';
-            document.getElementById('rotationNumber').textContent = currentRotation + 1;
             renderRotationDiagram();
             renderCurrentTable();
             renderSquadTable();
             renderHistory();
+            updateShiftDisplay();
         }
 
         window.addPersonGlobal = function() {
@@ -683,32 +813,67 @@
             }
         };
 
-        window.nextRotationGlobal = function() {
-            const assignments = people.map(person => ({ name: person.name, squad: getCurrentSquad(person) }));
-            history.push({ date: new Date().toLocaleString('ru-RU'), rotation: currentRotation + 1, assignments });
+        window.nextShiftGlobal = function() {
+            const startDate = document.getElementById('nextShiftStart').value;
+            const endDate = document.getElementById('nextShiftEnd').value;
+
+            if (!startDate || !endDate) {
+                alert('укажи даты следующей смены');
+                return;
+            }
+
+            if (new Date(endDate) <= new Date(startDate)) {
+                alert('дата конца должна быть позже даты начала');
+                return;
+            }
+
+            // Сохраняем текущую смену в историю
+            const assignments = people.map(person => ({
+                name: person.name,
+                squad: getCurrentSquad(person)
+            }));
+
+            shifts.push({
+                startDate: currentShift.startDate,
+                endDate: currentShift.endDate,
+                rotation: currentRotation,
+                assignments: assignments
+            });
+
+            // Переход на следующую ротацию
             currentRotation++;
+
+            // Устанавливаем новую смену
+            currentShift = { startDate, endDate };
+
+            // Очищаем поля
+            document.getElementById('nextShiftStart').value = '';
+            document.getElementById('nextShiftEnd').value = '';
+
             saveData();
         };
 
         window.previousRotationGlobal = function() {
-            if (currentRotation > 0) {
-                currentRotation--;
-                if (history.length > 0) history.pop();
+            if (currentRotation > 0 && shifts.length > 0) {
+                const lastShift = shifts.pop();
+                currentRotation = lastShift.rotation;
+                currentShift = { startDate: lastShift.startDate, endDate: lastShift.endDate };
                 saveData();
             }
         };
 
         window.resetRotationGlobal = function() {
-            if (confirm('сбросить ротацию?')) {
+            if (confirm('сбросить всё к начальному состоянию?')) {
                 currentRotation = 0;
-                history = [];
+                currentShift = { startDate: "", endDate: "" };
+                shifts = [];
                 saveData();
             }
         };
 
         window.clearHistoryGlobal = function() {
-            if (confirm('очистить историю?')) {
-                history = [];
+            if (confirm('очистить историю смен?')) {
+                shifts = [];
                 saveData();
             }
         };
@@ -717,6 +882,8 @@
             updateConnectionStatus(snapshot.val() === true);
         });
 
+        // Запуск
+        createBubbles();
         loadData();
     </script>
 </body>
